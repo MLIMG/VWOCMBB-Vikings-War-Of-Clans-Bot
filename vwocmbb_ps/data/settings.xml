@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<OPT>
+  <Version Value="1.0.ps.beta" />
+  <Time Name="vld" Value="30" />
+  <Time Name="smcd" Value="15" />
+  <Time Name="tbl" Value="15" />
+  <Time Name="ct" Value="ms" />
+  <Time Name="esd" Value="20" />
+  <Path Name="Nox" Value="" />
+  <Path Name="MEmu" Value="" />
+  <Path Name="nsp" Value="" />
+  <Path Name="msp" Value="" />
+  <Update Name="update" Value="Yes" />
+</OPT>

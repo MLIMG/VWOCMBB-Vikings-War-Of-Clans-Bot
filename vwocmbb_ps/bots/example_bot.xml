@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Bot>
+  <OPT>
+    <Posx Value="96"/>
+    <Posy Value="120"/>
+    <Height Value="350"/>
+    <Width Value="450"/>
+    <LoopTimeout Value="33"/>
+    <ClickTimeout Value="ms"/>
+  </OPT>
+  <Account Name="Superfarm">
+    <Function Name="opentaskwindow">
+      <Param Value="f"/>
+      <Param Value="personal"/>
+      <param Value="full"/>
+      <Param Value="f"/>
+      <Param Value="clan"/>
+      <param Value="15"/>
+      <Param Value="f"/>
+      <Param Value="vip"/>
+      <param Value="15"/>
+    </Function>
+    <Function Name="sendrssovermarket">
+      <Param Value="bank"/>
+      <Param Value="food"/>
+      <Param Value="1"/>
+      <Param Value="wood"/>
+      <Param Value="1"/>
+      <Param Value="iron"/>
+      <Param Value="1"/>
+      <Param Value="stone"/>
+      <Param Value="1"/>
+      <Param Value="silver"/>
+      <Param Value="1"/>
+    </Function>
+  </Account>
+  <Account Name="Superfarm2">
+    <Function Name="sendrssovermarket">
+      <Param Value="bank2"/>
+      <Param Value="wood"/>
+      <Param Value="8"/>
+      <Param Value="silver"/>
+      <Param Value="3"/>
+    </Function>
+  </Account>
+</Bot>
