@@ -2157,15 +2157,16 @@ function sendsilver([int]$amount){
 }
 
 #rss_to_sh_ext
-# timeout,loops
+# timeout,loops,max_marches
 function rss_to_sh_ext([array]$params){
   [int]$timeout = $params[0]
-  [int]$loops = $params[1]
+  [int]$max_marches = $params[1]
+  [int]$marches = 0
   $global:whereami = "rss_to_sh"
   bot_notify "Send RSS to SH"
   click-screen 818 1818
   Start-Sleep -m 350
-  click-screen 465 990
+  click-screen 465 900
   Start-Sleep-Prog 13 "Wait for SH"
   click-screen 470 45
   Start-Sleep -m 350
@@ -2173,29 +2174,60 @@ function rss_to_sh_ext([array]$params){
   scrollup
   scrollup
   $loop_count = 0
-  while ($loop_count -le $loops){
-    [int]$i=0
+    [int]$lol=0
     foreach ($param in $params){
       if($param -eq "food"){
-        sendfoodSH $params[$i+1]
+        for ($i=1;$i -le $params[$lol+1];$i++){
+          if($marches -ge $max_marches){
+            start-sleep-prog $timeout "out of marches!"
+            $marches = 0
+          }
+          sendfoodSH 1
+          $marches++
+        }
       }
       if($param -eq "wood"){
-        sendwoodSH $params[$i+1]
+        for ($i=1;$i -le $params[$lol+1];$i++){
+          if($marches -ge $max_marches){
+            start-sleep-prog $timeout "out of marches!"
+            $marches = 0
+          }
+          sendwoodSH 1
+          $marches++
+        }
       }
       if($param -eq "iron"){
-        sendironSH $params[$i+1]
+        for ($i=1;$i -le $params[$lol+1];$i++){
+          if($marches -ge $max_marches){
+            start-sleep-prog $timeout "out of marches!"
+            $marches = 0
+          }
+          sendironSH 1
+          $marches++
+        }
       }
       if($param -eq "stone"){
-        sendstoneSH $params[$i+1]
+        for ($i=1;$i -le $params[$lol+1];$i++){
+          if($marches -ge $max_marches){
+            start-sleep-prog $timeout "out of marches!"
+            $marches = 0
+          }
+          sendstoneSH 1
+          $marches++
+        }
       }
       if($param -eq "silver"){
-        sendsilverSH $params[$i+1]
+        for ($i=1;$i -le $params[$lol+1];$i++){
+          if($marches -ge $max_marches){
+            start-sleep-prog $timeout "out of marches!"
+            $marches = 0
+          }
+          sendsilverSH 1
+          $marches++
+        }
       }
-      $i++
+      $lol++
     }
-    start-sleep -s $timeout
-    $loop_count++
-  }
   click-screen 1063 90
   click-screen 90 1830
 }
