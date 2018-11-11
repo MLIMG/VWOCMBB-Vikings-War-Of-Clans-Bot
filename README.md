@@ -28,8 +28,12 @@ Whats new:
 [Suggestions](https://easy-develope.ch/vikings-war-of-clans-vwocmbb/forum/forum/suggestions-4/)
 # Install
 [1. Preparation](https://easy-develope.ch/vikings-war-of-clans-vwocmbb/vikings-war-of-clans-bot/#1537202941598-7499a3fe-d414)
+
 [2. Ban Protection](https://easy-develope.ch/vikings-war-of-clans-vwocmbb/vikings-war-of-clans-bot/#1537202941635-03373942-af41)
+
 [3. Core](https://easy-develope.ch/vikings-war-of-clans-vwocmbb/vikings-war-of-clans-bot/#1537204264822-8f48a630-958b)
 [4. Intelligence](https://easy-develope.ch/vikings-war-of-clans-vwocmbb/vikings-war-of-clans-bot/#1537204865352-ba7677b5-819e)
+
 [5. Help & Tutorials](https://easy-develope.ch/vikings-war-of-clans-vwocmbb/vikings-war-of-clans-bot/#1537205583247-cefe7832-27b8)
+
 [Bot Codex](https://easy-develope.ch/vikings-war-of-clans-vwocmbb/vikings-war-of-clans-bot/#1537207194188-bbac574a-1ca6)
