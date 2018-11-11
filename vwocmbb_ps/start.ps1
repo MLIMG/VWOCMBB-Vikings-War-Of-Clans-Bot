@@ -1324,7 +1324,27 @@ function bonus_collector{
     doOCR 0 "pixel" "bonus_obj"
     start-sleep -s 3
     click-screen 540 1333
+    apply_vip_point
   }
+}
+
+function apply_vip_point{
+  click-screen 623 139
+  click-screen 319 839
+  if((doOCR 1 "check" "btn_use") -eq 1){
+    $btn_use_visable = 1
+    while($btn_use_visable -eq 1){
+      $ai_name = $ai_name+"obj_btn_use-eq1"
+      doOCR 1 "single-long" "btn_use"
+      start-sleep -m 600
+      click-screen 691 1025
+      start-sleep -m 600
+      click-screen 290 1842
+      start-sleep -m 2000
+      $btn_use_visable = doOCR 1 "check" "btn_use"
+    }
+  }
+  doOCR 1 "pixel" "close_top_right"
 }
 
 #help_mem
@@ -2180,6 +2200,7 @@ function rss_to_sh_ext([array]$params){
         for ($i=1;$i -le $params[$lol+1];$i++){
           if($marches -ge $max_marches){
             start-sleep-prog $timeout "out of marches!"
+            reconnect_device
             $marches = 0
           }
           sendfoodSH 1
@@ -2190,6 +2211,7 @@ function rss_to_sh_ext([array]$params){
         for ($i=1;$i -le $params[$lol+1];$i++){
           if($marches -ge $max_marches){
             start-sleep-prog $timeout "out of marches!"
+            reconnect_device
             $marches = 0
           }
           sendwoodSH 1
@@ -2200,6 +2222,7 @@ function rss_to_sh_ext([array]$params){
         for ($i=1;$i -le $params[$lol+1];$i++){
           if($marches -ge $max_marches){
             start-sleep-prog $timeout "out of marches!"
+            reconnect_device
             $marches = 0
           }
           sendironSH 1
@@ -2210,6 +2233,7 @@ function rss_to_sh_ext([array]$params){
         for ($i=1;$i -le $params[$lol+1];$i++){
           if($marches -ge $max_marches){
             start-sleep-prog $timeout "out of marches!"
+            reconnect_device
             $marches = 0
           }
           sendstoneSH 1
@@ -2220,6 +2244,7 @@ function rss_to_sh_ext([array]$params){
         for ($i=1;$i -le $params[$lol+1];$i++){
           if($marches -ge $max_marches){
             start-sleep-prog $timeout "out of marches!"
+            reconnect_device
             $marches = 0
           }
           sendsilverSH 1
