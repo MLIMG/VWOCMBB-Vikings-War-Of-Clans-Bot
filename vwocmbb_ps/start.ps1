@@ -1080,7 +1080,7 @@ read bot xml file
 #>
 function read-botxml($botfile){
   if($global:emumode -eq "Nox"){
-    $nox_vers = (get-item "C:\Program Files (x86)\Nox\bin\Nox.exe").VersionInfo.FileVersion
+    $nox_vers = (get-item "$global:Nox\Nox.exe").VersionInfo.FileVersion
     if($nox_vers -ne "V.6.2.5.2"){
       cls
       Write-host ""
