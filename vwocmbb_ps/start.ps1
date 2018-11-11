@@ -1079,6 +1079,22 @@ function ocr_log_stop($starttime,$name,$comment){
 read bot xml file
 #>
 function read-botxml($botfile){
+  if($global:emumode -eq "Nox"){
+    $nox_vers = (get-item "C:\Program Files (x86)\Nox\bin\Nox.exe").VersionInfo.FileVersion
+    if($nox_vers -ne "V.6.2.5.2"){
+      cls
+      Write-host ""
+      Write-host "Please change Nox to version V.6.2.5.2"
+      Write-host "Your version is: $nox_vers"
+      Write-host ""
+      Write-host "Download start in 10 seconds!"
+      Write-host ""
+      start-sleep -s 10
+      start 'https://easy-develope.ch/ps_bot_update/nox/nox_setup_v6.2.5.2_full_intl.zip'
+      start-sleep -s 1
+      break
+    }
+  }
   $st_bot_start = debug_log_start
   cls
   reconnect_device
@@ -1098,10 +1114,25 @@ function read-botxml($botfile){
     $xml_content | Set-Content -Encoding utf8 $path
   } catch {
     cls
-    write-host "Cannot convert botfile to utf8"
+    Write-host ""
+    write-host "Cannot convert botfile to utf8 $path"
+    Write-host "Error-Code:"
+    $xml_content = Get-Content $path
+    $xml_content | Set-Content -Encoding utf8 $path
+    start-sleep -s 10
+    break
   }
-  $xml = [xml](Get-Content $path)
-
+  try{
+    $xml = [xml](Get-Content $path)
+  } catch {
+    cls
+    Write-host ""
+    Write-host "Error Loading Botfile $path"
+    Write-host "Error-Code:"
+    $xml = [xml](Get-Content $path)
+    start-sleep -s 10
+    break
+  }
   if ($xml.Bot.OPT.LoopTimeout -ne $null) {
     $global:tbl = $xml.Bot.OPT.LoopTimeout.Value
   }
@@ -2789,7 +2820,7 @@ function doOCR($cap,$mode,$obj,$func_name){
   if($global:emumode -eq "Nox"){
     #$cap_arg_2 = "shell screencap -p /sdcard/$imagename-screen.dump"
     $cap_arg_2 = "shell screencap -p /mnt/shared/Image/$imagename-screen.dump"
-    $resize_path = '"' + $global:nsp + '\Image\' + $imagename + '-screen.dump"'
+    $resize_path = '"' + $global:nsp + '\ImageShare\' + $imagename + '-screen.dump"'
 
     #$resize_path = '"' + (Get-Item -Path ".\").FullName +'\data\AI\Images\src\' + $imagename + '-screen.dump"'
     $extpath = ('"/sdcard/' + $imagename + '-screen.dump"').Trim()
