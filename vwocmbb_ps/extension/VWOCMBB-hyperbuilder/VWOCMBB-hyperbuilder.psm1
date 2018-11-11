@@ -727,6 +727,7 @@ function ai_builder{
   $he_val = 0
   [array]$obj_array = @("btn_no","btc_build_free","free_2","free_1","build_free","btc_goto","build_3","build_1","help_1","btc_build_help","faster_1","btn_use","btn_faster","btc_faster","build_rss")
   do{
+    reconnect_device
     if((doOCR 1 "pixel-check" "no_food_obj") -eq 1 -or (doOCR 0 "pixel-check" "break_rss_booster_use") -eq 1){
       $fail_clk = 18
       break
