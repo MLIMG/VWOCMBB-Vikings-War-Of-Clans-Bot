@@ -1,5 +1,6 @@
 Set-Location "C:\vwocmbb_ps"
 Import-Module .\modules\ps-menu-master\PS-Menu
+Import-Module .\modules\VWOCMBB-ValidateXmlFile -WarningAction SilentlyContinue
 Import-Module .\modules\VWOCMBB-updater\VWOCMBB-updater -WarningAction SilentlyContinue
 
 foreach ($extension in (Get-ChildItem (".\extension\") -Name -attributes D)){
@@ -40,6 +41,7 @@ $global:whereami = ""
 [int]$global:tbreak = 5
 $global:deb_start
 $global:deb_bot_name = ""
+$global:loop_start_time = ""
 <#
 Check running process (MEmu, Nox or usb) and set path to adb.exe file
 #>
@@ -1096,6 +1098,7 @@ function read-botxml($botfile){
     }
   }
   $st_bot_start = debug_log_start
+  set_loop_start
   cls
   reconnect_device
   cls
@@ -1109,6 +1112,14 @@ function read-botxml($botfile){
   $global:active_bot = $botfile
   $xml = new-object System.Xml.XmlDocument
   $path = ".\bots\$botfile"
+  cls
+  Write-host ""
+  if((ValidateXmlFile $path) -eq $false){
+    start-sleep -s 60
+    Write-host ""
+    Write-host "Close in 60s"
+    break
+  }
   try{
     $xml_content = Get-Content $path
     $xml_content | Set-Content -Encoding utf8 $path
@@ -1209,6 +1220,52 @@ function read-botxml($botfile){
   restart-loop
 }
 
+function set_loop_start{
+  if($global:loop_start_time -eq ""){
+      $global:loop_start_time = (Get-Date)
+  }
+}
+
+function aut_reboot_emu{
+  $loopstart = $global:loop_start_time
+  $now_time = (get-date)
+  $diff = ($now_time - $loopstart).hours
+  if($diff -ge 1){
+    #todo reboot
+    if($global:emu_mode -eq "Nox"){
+      .($global:emulatorpath+"\Nox.exe") -clone:$global:active_emulator -quit
+      Start-Sleep-Prog 10 "Shutdown Emulator"
+      .($global:emulatorpath+"\Nox.exe") -clone:$global:active_emulator
+      Start-Sleep-Prog $global:esd "Start Emulator"
+      reconnect_device
+      cls
+      $adbArgList = @(
+        "-s $global:adbname",
+        "shell monkey -p org.sandroproxy.drony -v 1"
+      )
+      run-prog $global:adbpath $adbArgList
+      cls
+      Start-Sleep-Prog 10 "Boot Drony"
+    }
+    if($global:emu_mode -eq "MEmu"){
+      .($global:emulatorpath+"\MEmuConsole.exe") ShutdownVm $global:active_emulator
+      Start-Sleep-Prog 10 "Shutdown Emulator"
+      .($global:emulatorpath+"\MEmuConsole.exe") $global:active_emulator
+      Start-Sleep-Prog $global:esd "Start Emulator"
+      reconnect_device
+      cls
+      $adbArgList = @(
+        "-s $global:adbname",
+        "shell monkey -p org.sandroproxy.drony -v 1"
+      )
+      run-prog $global:adbpath $adbArgList
+      cls
+      Start-Sleep-Prog 10 "Boot Drony"
+    }
+    $global:loop_start_time = (Get-Date)
+  }
+}
+
 <#
   restart loop
 #>
@@ -1241,6 +1298,7 @@ function restart-loop{
 Call multibox account
 #>
 function acc($params){
+  aut_reboot_emu
   $global:logname = ($params -replace " ","_") + "_" + ($global:active_bot -replace ".xml","") + "_" + ($global:adbname -replace ":",".").Trim()
   $host.ui.RawUI.WindowTitle = "$global:logname | VWOCMB Bot Version: $global:botversion"
   cls
