@@ -32,6 +32,7 @@ Whats new:
 [2. Ban Protection](https://easy-develope.ch/vikings-war-of-clans-vwocmbb/vikings-war-of-clans-bot/#1537202941635-03373942-af41)
 
 [3. Core](https://easy-develope.ch/vikings-war-of-clans-vwocmbb/vikings-war-of-clans-bot/#1537204264822-8f48a630-958b)
+
 [4. Intelligence](https://easy-develope.ch/vikings-war-of-clans-vwocmbb/vikings-war-of-clans-bot/#1537204865352-ba7677b5-819e)
 
 [5. Help & Tutorials](https://easy-develope.ch/vikings-war-of-clans-vwocmbb/vikings-war-of-clans-bot/#1537205583247-cefe7832-27b8)
