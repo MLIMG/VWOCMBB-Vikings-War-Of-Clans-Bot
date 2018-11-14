@@ -591,6 +591,7 @@ function quickbot([array]$quickbotargs){
   $emu_mode = $quickbotargs[0]
   $device_addr = $quickbotargs[1]
   $select_bot = $quickbotargs[2]
+  $global:active_emulator = $quickbotargs[3]
   $global:deb_bot_name = $select_bot
   if($emu_mode -eq "Nox"){
     $global:adbpath = $global:Nox+"\adb.exe"
@@ -719,7 +720,7 @@ function quickstart(){
     Start-Sleep-Prog $global:esd "Waiting for emulators"
     foreach($emu in $xml.Data.QST){
       $bot = $emu.Bot+".xml"
-      $args_arr = @("quickbot",$global:emumode,$emu.Address,$bot)
+      $args_arr = @("quickbot",$global:emumode,$emu.Address,$bot,$emu.Name)
       Start-Process "C:\vwocmbb_ps\start.lnk" -ArgumentList $args_arr
     }
   }
@@ -1232,7 +1233,7 @@ function aut_reboot_emu{
   $diff = ($now_time - $loopstart).hours
   if($diff -ge 1){
     #todo reboot
-    if($global:emu_mode -eq "Nox"){
+    if($global:emumode -eq "Nox"){
       .($global:emulatorpath+"\Nox.exe") -clone:$global:active_emulator -quit
       Start-Sleep-Prog 10 "Shutdown Emulator"
       .($global:emulatorpath+"\Nox.exe") -clone:$global:active_emulator
@@ -1247,7 +1248,7 @@ function aut_reboot_emu{
       cls
       Start-Sleep-Prog 10 "Boot Drony"
     }
-    if($global:emu_mode -eq "MEmu"){
+    if($global:emumode -eq "MEmu"){
       .($global:emulatorpath+"\MEmuConsole.exe") ShutdownVm $global:active_emulator
       Start-Sleep-Prog 10 "Shutdown Emulator"
       .($global:emulatorpath+"\MEmuConsole.exe") $global:active_emulator
@@ -1342,6 +1343,11 @@ function acc($params){
   if((doOCR 1 "pixel-check" "mb_wont_load") -eq 1){
     $returnval = 1
   } else {
+    $adbArgList = @(
+      "-s $global:adbname",
+      "shell am force-stop ch.easy_develope.vwocmb.vikingswarofclansmultibox"
+    )
+    run-prog $global:adbpath $adbArgList
   close-shop-window
   }
   return $returnval
@@ -1374,26 +1380,10 @@ function close-shop-window{
     cls
     Start-Sleep -m 2500
     doOCR 1 "pixel" "connection_lost" "close-shop-window"
-    <# $ai_val = read_ai_db "close-shop-window" "obj_retry"
-    if($ai_val -ne 0){
-      $posx = $ai_val[0]
-      $posy = $ai_val[1]
-      click-screen $posx $posy
-    } else {
-      doOCR 1 "pixel" "close_top_right" "close-shop-window"
-    }#>
     debug_log_stop $st_conlost_start "Connection Lost, Renew IP" $global:running_acc
     close-shop-window
   } else {
     doOCR 1 "pixel" "close_top_right" "close-shop-window"
-    <# $ai_val = read_ai_db "close-shop-window" "obj_retry"
-    if($ai_val -ne 0){
-      $posx = $ai_val[0]
-      $posy = $ai_val[1]
-      click-screen $posx $posy
-    } else {
-      doOCR 1 "pixel" "close_top_right" "close-shop-window"
-    }#>
   }
 }
 
@@ -1613,14 +1603,8 @@ function traintroop{
   if(calculate-time @("d","1","traintroop","check") -eq 1){
     bot_notify "Train 1 Warrior"
     click-screen 620	1830
-    $ai_val = read_ai_db "traintroop" "soldiers"
-      if($ai_val -ne 0){
-        $posx = $ai_val[0]
-        $posy = $ai_val[1]
-        click-screen $posx $posy
-      } else {
-        doOCR 1 "single" "soldiers" "traintroop"
-      }
+    doOCR 1 "single" "soldiers" "traintroop"
+    start-sleep -s 2
     click-screen 770	1090
     doOCR 1 "pixel" "close_top_right" "traintroop"
     calculate-time @("d","1","traintroop","update")
@@ -2807,14 +2791,14 @@ function reconnect_device{
   bot_notify "Check device status"
   bot_notify "Status is: $devicestate"
   if (($devicestate -like '*unable to*') -or ($devicestate -like '*daemon not running*')) {
-    if($global:emu_mode -eq "Nox"){
+    if($global:emumode -eq "Nox"){
       .($global:emulatorpath+"\Nox.exe") -clone:$global:active_emulator -quit
       Start-Sleep-Prog 10 "Shutdown Emulator"
       .($global:emulatorpath+"\Nox.exe") -clone:$global:active_emulator
       Start-Sleep-Prog $global:esd "Start Emulator"
       read-botxml $global:active_bot
     }
-    if($global:emu_mode -eq "MEmu"){
+    if($global:emumode -eq "MEmu"){
       .($global:emulatorpath+"\MEmuConsole.exe") ShutdownVm $global:active_emulator
       Start-Sleep-Prog 10 "Shutdown Emulator"
       .($global:emulatorpath+"\MEmuConsole.exe") $global:active_emulator
@@ -3396,7 +3380,7 @@ if($args[0] -eq "jobs"){
     loadxmlsettings "quick"
   } else {
     if($args[0] -eq "quickbot"){
-      $botarr = @($args[1],$args[2],$args[3])
+      $botarr = @($args[1],$args[2],$args[3],$args[4])
       loadxmlsettings "quickbot" $botarr
     } else {
       check-osvers
