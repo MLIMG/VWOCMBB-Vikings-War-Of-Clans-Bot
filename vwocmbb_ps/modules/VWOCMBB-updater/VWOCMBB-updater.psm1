@@ -1,15 +1,10 @@
 function VWOCMBB-updater([array]$params){
   cls
 Write-host "Check for updates!"
-  $url = "https://easy-develope.ch/ps_bot_update/meta.xml"
-  $output = "$PSScriptRoot\meta.xml"
-  Invoke-WebRequest -Uri $url -OutFile $output
-
-  $xml = new-object System.Xml.XmlDocument
-  $path = "$PSScriptRoot\meta.xml"
-  $xml = [xml](Get-Content $path)
-  $global:newversion = $xml.Meta.Version.Value
-  if($xml.Meta.Version.Value -eq $params[0]){
+  $json_url = "https://api.easy-develope.ch/mbb/get_bot_version"
+  $jsoncon = Invoke-WebRequest $url | convertfrom-json
+  $global:newversion = $jsoncon.version
+  if($jsoncon.version -eq $params[0]){
     cls
     Write-host "No Update available"
     Start-Sleep -s 3
@@ -21,6 +16,12 @@ Write-host "Check for updates!"
     write-host $global:newversion
     write-host "Changelog:"
     write-host ""
+    $url = "https://easy-develope.ch/ps_bot_update/meta.xml"
+    $output = "$PSScriptRoot\meta.xml"
+    Invoke-WebRequest -Uri $url -OutFile $output
+    $xml = new-object System.Xml.XmlDocument
+    $path = "$PSScriptRoot\meta.xml"
+    $xml = [xml](Get-Content $path)
     foreach ($cline in ($xml.Meta.Changelog.Info)){
       Write-host ("- " + $cline.Value)
     }
@@ -55,6 +56,8 @@ Write-host "Check for updates!"
       Write-host "Terminate updater in 4 seconds Please wait!"
       start-sleep -s 4
       Break
+    } else {
+      show-main-menu
     }
   }
 }
