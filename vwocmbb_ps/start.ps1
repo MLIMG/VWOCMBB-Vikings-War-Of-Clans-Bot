@@ -1600,6 +1600,7 @@ function buildskill{
   }
 }
 
+#b250
 #traintroop
 function traintroop{
   $global:whereami = "traintroop"
@@ -1608,8 +1609,8 @@ function traintroop{
     click-screen 620	1830
     start-sleep -s 2
     click-screen 527 633
+    start-sleep -m 500
     click-screen 527 700
-    click-screen 527 840
     start-sleep -s 3
     click-screen 770	1090
     doOCR 1 "pixel" "close_top_right" "traintroop"
