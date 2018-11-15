@@ -1606,8 +1606,11 @@ function traintroop{
   if(calculate-time @("d","1","traintroop","check") -eq 1){
     bot_notify "Train 1 Warrior"
     click-screen 620	1830
-    doOCR 1 "single" "soldiers" "traintroop"
     start-sleep -s 2
+    click-screen 527 633
+    click-screen 527 700
+    click-screen 527 840
+    start-sleep -s 3
     click-screen 770	1090
     doOCR 1 "pixel" "close_top_right" "traintroop"
     calculate-time @("d","1","traintroop","update")
