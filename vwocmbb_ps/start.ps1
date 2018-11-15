@@ -1410,16 +1410,18 @@ function bonus_collector{
 
 function apply_vip_point{
   click-screen 623 139
+  start-sleep -s 3
   click-screen 319 839
   if((doOCR 1 "check" "btn_use") -eq 1){
     $btn_use_visable = 1
     while($btn_use_visable -eq 1){
-      $ai_name = $ai_name+"obj_btn_use-eq1"
-      doOCR 1 "single-long" "btn_use"
+      doOCR 1 "single-long" "btn_use_vip"
       start-sleep -m 600
-      click-screen 691 1025
+      click-screen 755 1178
       start-sleep -m 600
-      click-screen 290 1842
+      click-screen 360 1400
+      start-sleep -s 5
+      click-screen 673 1240
       start-sleep -m 2000
       $btn_use_visable = doOCR 1 "check" "btn_use"
     }
@@ -2966,6 +2968,9 @@ function doOCR($cap,$mode,$obj,$func_name){
         [int]$obj_height = ((C:\vwocmbb_ps\data\AI\ICompare\identify -format %h "C:\vwocmbb_ps\data\AI\Images\compare\$obj.png")/2)*10
         $posx = ([int]($posarray[1])*10)+$obj_width
         $posy = ([int]($posarray[2])*10)+$obj_height
+        if($obj -eq "btn_use_vip"){
+          $posx = $posx+150
+        }
         click-screen $posx $posy "long"
         Remove-Item ((Get-Item -Path ".\").FullName + "\data\AI\Images\src\$imagename-output-1.png")
         Remove-Item ((Get-Item -Path ".\").FullName + "\data\AI\Images\src\$imagename-output-0.png")
