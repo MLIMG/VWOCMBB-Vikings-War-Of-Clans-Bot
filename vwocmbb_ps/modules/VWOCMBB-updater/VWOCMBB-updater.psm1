@@ -2,13 +2,14 @@ function VWOCMBB-updater([array]$params){
   cls
 Write-host "Check for updates!"
   $json_url = "https://api.easy-develope.ch/mbb/get_bot_version"
-  $jsoncon = Invoke-WebRequest $url | convertfrom-json
+  $jsoncon = Invoke-WebRequest $json_url | convertfrom-json
   $global:newversion = $jsoncon.version
   if($jsoncon.version -eq $params[0]){
     cls
     Write-host "No Update available"
     Start-Sleep -s 3
     cls
+    show-main-menu
   } else {
     cls
     Write-host "Update available. Update now?"
