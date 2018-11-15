@@ -1249,9 +1249,10 @@ function aut_reboot_emu{
       Start-Sleep-Prog 10 "Boot Drony"
     }
     if($global:emumode -eq "MEmu"){
+      [string]$memuname = $global:active_emulator
       .($global:emulatorpath+"\MEmuConsole.exe") ShutdownVm $global:active_emulator
       Start-Sleep-Prog 10 "Shutdown Emulator"
-      .($global:emulatorpath+"\MEmuConsole.exe") $global:active_emulator
+      .($global:emulatorpath+"\MEmuConsole.exe $memuname")
       Start-Sleep-Prog $global:esd "Start Emulator"
       reconnect_device
       cls
@@ -2799,9 +2800,10 @@ function reconnect_device{
       read-botxml $global:active_bot
     }
     if($global:emumode -eq "MEmu"){
+      [string]$memuname = $global:active_emulator
       .($global:emulatorpath+"\MEmuConsole.exe") ShutdownVm $global:active_emulator
       Start-Sleep-Prog 10 "Shutdown Emulator"
-      .($global:emulatorpath+"\MEmuConsole.exe") $global:active_emulator
+      .($global:emulatorpath+"\MEmuConsole.exe $memuname")
       Start-Sleep-Prog $global:esd "Start Emulator"
       read-botxml $global:active_bot
     }
