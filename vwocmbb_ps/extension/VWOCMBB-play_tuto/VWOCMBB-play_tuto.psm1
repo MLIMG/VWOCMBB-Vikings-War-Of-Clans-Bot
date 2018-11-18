@@ -4,12 +4,35 @@ function play_tutorial($acc_name){
   click-screen 555 1281
   start-sleep-prog 15 "Killing Plarium's T6..."
   $sec_val = 0
-  while($sec_val -lt 1){
-    all_tuto_clks
-    $sec_val = check_fb_connect
-    start-sleep -s 10
+  if((doOCR 1 "pixel-check" "connection_lost") -eq 1){
+    $st_conlost_start = debug_log_start
+    bot_notify "Connection lost!"
+    Start-Sleep -s 1
+    $adbArgList = @(
+      "-s $global:adbname",
+      "shell monkey -p org.sandroproxy.drony -v 1"
+    )
+    run-prog $global:adbpath $adbArgList
+    cls
+    Start-Sleep-Prog 60 "Renew IP address!"
+    $adbArgList = @(
+      "-s $global:adbname",
+      "shell monkey -p com.plarium.vikings -v 1"
+    )
+    run-prog $global:adbpath $adbArgList
+    cls
+    Start-Sleep -m 2500
+    doOCR 1 "pixel" "connection_lost" "close-shop-window"
+    debug_log_stop $st_conlost_start "Connection Lost, Renew IP" $global:running_acc
+     play_tutorial $acc_name
+  } else {
+    while($sec_val -lt 1){
+      all_tuto_clks
+      $sec_val = check_fb_connect
+      start-sleep -s 10
+    }
+    write_acc_name $acc_name
   }
-  write_acc_name $acc_name
 }
 
 function write_acc_name($name){
@@ -81,7 +104,7 @@ function move_to_kd($params){
   start-sleep -s 1
   click-screen 372	1286 "tuto"
   start-sleep -s 1
-  start-sleep-prog $global:smcd "open map"
+  start-sleep-prog $global:smcd "Fucking Plarium..."
   click-screen 688	1348 "tuto"
   start-sleep -s 1
   close-shop-window
@@ -93,10 +116,13 @@ function join_clan($params){
   click-screen 460 471 "tuto"
   start-sleep -s 2
   click-screen 460 471 "tuto"
-  start-sleep -s 2
+  start-sleep -s 4
   click-screen 460 471 "tuto"
   start-sleep -s 2
-  write_acc_name $params
+  write-acc-name $params
+  start-sleep -s 2
+  click-screen 930 456 "tuto"
+  start-sleep -s 2
   click-screen 930 456 "tuto"
   start-sleep -s 2
   click-screen 896 894 "tuto"
