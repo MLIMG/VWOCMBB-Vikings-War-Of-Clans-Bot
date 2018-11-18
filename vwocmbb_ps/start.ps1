@@ -6,7 +6,7 @@ Import-Module .\modules\VWOCMBB-updater\VWOCMBB-updater -WarningAction SilentlyC
 foreach ($extension in (Get-ChildItem (".\extension\") -Name -attributes D)){
     Import-Module .\extension\$extension\$extension -WarningAction SilentlyContinue
 }
-
+$global:tutomode = ""
 $global:adbpath = ""
 $global:devicelist = New-Object System.Collections.ArrayList
 $global:emutype = ""
@@ -1167,6 +1167,11 @@ function read-botxml($botfile){
     $rndmode_state = 1
     $acc_name_array = (Randomize-List -InputList $xml.Bot.Account.Name)
   }
+  if ($xml.Bot.OPT.Tutorial.Value -ne $null) {
+    if ($xml.Bot.OPT.Tutorial.Value -eq "on") {
+      $global:tutomode = "on"
+    }
+  }
   start-sleep-prog (Get-Random -Minimum 5 -Maximum 40) "Prepare Bot..."
   foreach ($account in $acc_name_array) {
     $st_acc_start = debug_log_start
@@ -1300,6 +1305,9 @@ function restart-loop{
 Call multibox account
 #>
 function acc($params){
+  if($global:tutomode -eq "on"){
+    add_to_mb ($params).Trim()
+  }
   aut_reboot_emu
   $global:logname = ($params -replace " ","_") + "_" + ($global:active_bot -replace ".xml","") + "_" + ($global:adbname -replace ":",".").Trim()
   $host.ui.RawUI.WindowTitle = "$global:logname | VWOCMB Bot Version: $global:botversion"
@@ -1349,7 +1357,15 @@ function acc($params){
       "shell am force-stop ch.easy_develope.vwocmb.vikingswarofclansmultibox"
     )
     run-prog $global:adbpath $adbArgList
-  close-shop-window
+    if($global:tutomode -eq "on"){
+      $returnval = 0
+    } else {
+      close-shop-window
+    }
+  }
+  if($global:tutomode -eq "on"){
+    $returnval = 0
+    Start-Sleep-Prog $global:vld "Keep calm and fuck Plarium"
   }
   return $returnval
 }
@@ -2666,6 +2682,50 @@ function auto_vip{
   }
 }
 
+function hide_beyboard{
+  $adbArgList = @(
+    "-s $global:adbname",
+    "shell input keyevent 4"
+  )
+  run-prog $global:adbpath $adbArgList
+}
+
+function write_number([string]$params){
+  [array]$chararray = $params.ToCharArray()
+  foreach ($char in $chararray){
+    if($char -eq "0"){
+      click-screen 1042 1651
+    }
+    if($char -eq "1"){
+      click-screen 47 1642
+    }
+    if($char -eq "2"){
+      click-screen 172 1634
+    }
+    if($char -eq "3"){
+      click-screen 258 1653
+    }
+    if($char -eq "4"){
+      click-screen 368 1645
+    }
+    if($char -eq "5"){
+      click-screen 490 1649
+    }
+    if($char -eq "6"){
+      click-screen 597 1657
+    }
+    if($char -eq "7"){
+      click-screen 709 1657
+    }
+    if($char -eq "8"){
+      click-screen 799 1659
+    }
+    if($char -eq "9"){
+      click-screen 925 1655
+    }
+  }
+}
+
 #write
 function write-acc-name([string]$params){
   [array]$chararray = $params.ToCharArray()
@@ -3167,6 +3227,10 @@ function click-screen([int]$pos_x,[int]$pos_y,$press_type){
   run-prog-clk $global:adbpath $click_arg
   if($press_type -eq "long"){
     start-sleep -m 3500
+  }
+  if($press_type -eq "tuto"){
+    $random_mss = Get-Random -Minimum 1200 -Maximum 3000
+    Start-Sleep -m $random_mss
   }
   if($global:ct -eq "ms"){
     Start-Sleep -m $random_ms
