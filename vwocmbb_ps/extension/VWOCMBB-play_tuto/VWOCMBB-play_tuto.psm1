@@ -1,6 +1,6 @@
 function play_tutorial($acc_name){
   click-screen 555 1574
-  start-sleep -s 3
+  start-sleep -s 5
   click-screen 555 1281
   start-sleep-prog 15 "Killing Plarium's T6..."
   $sec_val = 0

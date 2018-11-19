@@ -6,6 +6,7 @@ Import-Module .\modules\VWOCMBB-updater\VWOCMBB-updater -WarningAction SilentlyC
 foreach ($extension in (Get-ChildItem (".\extension\") -Name -attributes D)){
     Import-Module .\extension\$extension\$extension -WarningAction SilentlyContinue
 }
+$global:autoreboot = "on"
 $global:tutomode = ""
 $global:adbpath = ""
 $global:devicelist = New-Object System.Collections.ArrayList
@@ -1078,6 +1079,108 @@ function ocr_log_stop($starttime,$name,$comment){
   }
 }
 
+function check_drony_patch(){
+  [string]$emuname = $global:active_emulator
+  try {
+    New-Item -ItemType directory -Path C:\vwocmbb_ps\data\bin\eum_confs\$emuname\ -errorAction SilentlyContinue
+  } catch {
+
+  }
+  $path = "C:\vwocmbb_ps\data\bin\eum_confs\$emuname\drony_patch_version.json"
+  $ab_path = "C:\vwocmbb_ps\data\bin\eum_confs\drony.ab"
+  $apk_path = "C:\vwocmbb_ps\data\bin\eum_confs\drony_patch.apk"
+  $ab_url = "https://easy-develope.ch/ps_bot_update/drony.ab"
+  $apk_url = "https://easy-develope.ch/ps_bot_update/drony_patch.apk"
+  $json_url = "https://api.easy-develope.ch/mbb/get_drony_version"
+  if (Test-Path $path) {
+    cls
+    $curren_version = Get-Content -Raw -Path $path | ConvertFrom-Json
+    $online_version = Invoke-WebRequest $json_url | convertfrom-json
+    if($curren_version.version -ne $online_version.version){
+      Invoke-WebRequest -Uri $ab_url -OutFile $ab_path
+      Invoke-WebRequest -Uri $apk_url -OutFile $apk_path
+      cls
+      bot_notify "Prepare Drony Update"
+      start-sleep -s 4
+      bot_notify "Uninstall Drony"
+      $adbargs = @("-s $global:adbname","uninstall org.sandroproxy.drony")
+      run-prog-clk $global:adbpath $adbargs
+      bot_notify "Install Drony_Ad_Free"
+      start-sleep -s 4
+      $adbargs = @("-s $global:adbname","install -r C:\vwocmbb_ps\data\bin\eum_confs\drony_patch.apk")
+      run-prog $global:adbpath $adbargs
+      start-sleep -s 4
+      bot_notify "Configure Drony"
+      $adbargs = @("-s $global:adbname","restore C:\vwocmbb_ps\data\bin\eum_confs\drony.ab")
+      run-prog-clk $global:adbpath $adbargs
+      start-sleep -s 4
+      click-screen 800 1880
+      start-sleep -s 5
+      $adbArgList = @(
+        "-s $global:adbname",
+        "shell monkey -p org.sandroproxy.drony -v 1"
+      )
+      run-prog $global:adbpath $adbArgList
+      cls
+      start-sleep -s 6
+      click-screen 540 1880
+      start-sleep -s 4
+      click-screen 540 1880
+      start-sleep -s 4
+      click-screen 877 1119
+      start-sleep -s 4
+      $adbArgList = @(
+        "-s $global:adbname",
+        "shell input keyevent 3"
+      )
+      run-prog $global:adbpath $adbArgList
+      bot_notify "Configure Drony has finish."
+      start-sleep 3
+  }
+  } else {
+    Invoke-WebRequest -Uri $json_url -OutFile $path
+    Invoke-WebRequest -Uri $ab_url -OutFile $ab_path
+    Invoke-WebRequest -Uri $apk_url -OutFile $apk_path
+    cls
+    bot_notify "Prepare Drony Update"
+    start-sleep -s 4
+    bot_notify "Uninstall Drony"
+    $adbargs = @("-s $global:adbname","uninstall org.sandroproxy.drony")
+    run-prog-clk $global:adbpath $adbargs
+    bot_notify "Install Drony_Ad_Free"
+    start-sleep -s 4
+    $adbargs = @("-s $global:adbname","install -r C:\vwocmbb_ps\data\bin\eum_confs\drony_patch.apk")
+    run-prog $global:adbpath $adbargs
+    start-sleep -s 4
+    bot_notify "Configure Drony"
+    $adbargs = @("-s $global:adbname","restore C:\vwocmbb_ps\data\bin\eum_confs\drony.ab")
+    run-prog-clk $global:adbpath $adbargs
+    start-sleep -s 4
+    click-screen 800 1880
+    start-sleep -s 5
+    $adbArgList = @(
+      "-s $global:adbname",
+      "shell monkey -p org.sandroproxy.drony -v 1"
+    )
+    run-prog $global:adbpath $adbArgList
+    cls
+    start-sleep -s 6
+    click-screen 540 1880
+    start-sleep -s 4
+    click-screen 540 1880
+    start-sleep -s 4
+    click-screen 877 1119
+    start-sleep -s 4
+    $adbArgList = @(
+      "-s $global:adbname",
+      "shell input keyevent 3"
+    )
+    run-prog $global:adbpath $adbArgList
+    bot_notify "Configure Drony has finish."
+    start-sleep 3
+    }
+}
+
 <#
 read bot xml file
 #>
@@ -1103,6 +1206,7 @@ function read-botxml($botfile){
   cls
   reconnect_device
   cls
+  check_drony_patch
   $adbArgList = @(
     "-s $global:adbname",
     "shell monkey -p org.sandroproxy.drony -v 1"
@@ -1172,6 +1276,12 @@ function read-botxml($botfile){
       $global:tutomode = "on"
     }
   }
+  if ($xml.Bot.OPT.Reboot.Value -ne $null) {
+    if ($xml.Bot.OPT.Reboot.Value -eq "off") {
+      $global:autoreboot = "off"
+    }
+  }
+  #todo_get_reboot_value
   start-sleep-prog (Get-Random -Minimum 5 -Maximum 40) "Prepare Bot..."
   foreach ($account in $acc_name_array) {
     $st_acc_start = debug_log_start
@@ -1233,43 +1343,44 @@ function set_loop_start{
 }
 
 function aut_reboot_emu{
-  $loopstart = $global:loop_start_time
-  $now_time = (get-date)
-  $diff = ($now_time - $loopstart).hours
-  if($diff -ge 1){
-    #todo reboot
-    if($global:emumode -eq "Nox"){
-      .($global:emulatorpath+"\Nox.exe") -clone:$global:active_emulator -quit
-      Start-Sleep-Prog 10 "Shutdown Emulator"
-      .($global:emulatorpath+"\Nox.exe") -clone:$global:active_emulator
-      Start-Sleep-Prog $global:esd "Start Emulator"
-      reconnect_device
-      cls
-      $adbArgList = @(
-        "-s $global:adbname",
-        "shell monkey -p org.sandroproxy.drony -v 1"
-      )
-      run-prog $global:adbpath $adbArgList
-      cls
-      Start-Sleep-Prog 10 "Boot Drony"
-    }
-    if($global:emumode -eq "MEmu"){
-      [string]$memuname = $global:active_emulator
-      .($global:emulatorpath+"\MEmuConsole.exe") ShutdownVm $global:active_emulator
-      Start-Sleep-Prog 10 "Shutdown Emulator"
-      .($global:emulatorpath+"\MEmuConsole.exe ") $memuname
-      Start-Sleep-Prog $global:esd "Start Emulator"
-      reconnect_device
-      cls
-      $adbArgList = @(
-        "-s $global:adbname",
-        "shell monkey -p org.sandroproxy.drony -v 1"
-      )
-      run-prog $global:adbpath $adbArgList
-      cls
-      Start-Sleep-Prog 10 "Boot Drony"
-    }
-    $global:loop_start_time = (Get-Date)
+  if($global:autoreboot -eq "on"){
+    $loopstart = $global:loop_start_time
+    $now_time = (get-date)
+    $diff = ($now_time - $loopstart).hours
+    if($diff -ge 1){
+      if($global:emumode -eq "Nox"){
+        .($global:emulatorpath+"\Nox.exe") -clone:$global:active_emulator -quit
+        Start-Sleep-Prog 10 "Shutdown Emulator"
+        .($global:emulatorpath+"\Nox.exe") -clone:$global:active_emulator
+        Start-Sleep-Prog $global:esd "Start Emulator"
+        reconnect_device
+        cls
+        $adbArgList = @(
+          "-s $global:adbname",
+          "shell monkey -p org.sandroproxy.drony -v 1"
+        )
+        run-prog $global:adbpath $adbArgList
+        cls
+        Start-Sleep-Prog 10 "Boot Drony"
+      }
+      if($global:emumode -eq "MEmu"){
+        [string]$memuname = $global:active_emulator
+        .($global:emulatorpath+"\MEmuConsole.exe") ShutdownVm $global:active_emulator
+        Start-Sleep-Prog 10 "Shutdown Emulator"
+        .($global:emulatorpath+"\MEmuConsole.exe ") $memuname
+        Start-Sleep-Prog $global:esd "Start Emulator"
+        reconnect_device
+        cls
+        $adbArgList = @(
+          "-s $global:adbname",
+          "shell monkey -p org.sandroproxy.drony -v 1"
+        )
+        run-prog $global:adbpath $adbArgList
+        cls
+        Start-Sleep-Prog 10 "Boot Drony"
+      }
+      $global:loop_start_time = (Get-Date)
+    }  
   }
 }
 
@@ -3353,7 +3464,7 @@ function configure-drony{
     run-prog-clk $global:adbpath $adbargs
     bot_notify "Install Drony_Ad_Free"
     start-sleep -s 4
-    $adbargs = @("-s $global:adbname","install -r C:\vwocmbb_ps\data\bin\eum_confs\Drony.v.1.3.131.b.131.crk.ADS.Removed.apk")
+    $adbargs = @("-s $global:adbname","install -r C:\vwocmbb_ps\data\bin\eum_confs\drony_patch.apk")
     run-prog $global:adbpath $adbargs
     start-sleep -s 2
     bot_notify "Configure Drony"
