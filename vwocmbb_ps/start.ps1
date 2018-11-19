@@ -1094,8 +1094,8 @@ function check_drony_patch(){
   $json_url = "https://api.easy-develope.ch/mbb/get_drony_version"
   if (Test-Path $path) {
     cls
-    $curren_version = Get-Content -Raw -Path $path | ConvertFrom-Json
-    $online_version = Invoke-WebRequest $json_url | convertfrom-json
+    $curren_version = Get-Content -Raw -Path $path | ConvertFrom-Json -errorAction SilentlyContinue
+    $online_version = Invoke-WebRequest $json_url | convertfrom-json -errorAction SilentlyContinue
     if($curren_version.version -ne $online_version.version){
       Invoke-WebRequest -Uri $ab_url -OutFile $ab_path
       Invoke-WebRequest -Uri $apk_url -OutFile $apk_path
@@ -1136,11 +1136,12 @@ function check_drony_patch(){
       run-prog $global:adbpath $adbArgList
       bot_notify "Configure Drony has finish."
       start-sleep 3
+      Invoke-WebRequest -Uri $json_url -OutFile $path
   }
   } else {
-    Invoke-WebRequest -Uri $json_url -OutFile $path
-    Invoke-WebRequest -Uri $ab_url -OutFile $ab_path
-    Invoke-WebRequest -Uri $apk_url -OutFile $apk_path
+    Invoke-WebRequest -Uri $json_url -OutFile $path -errorAction SilentlyContinue
+    Invoke-WebRequest -Uri $ab_url -OutFile $ab_path -errorAction SilentlyContinue
+    Invoke-WebRequest -Uri $apk_url -OutFile $apk_path -errorAction SilentlyContinue
     cls
     bot_notify "Prepare Drony Update"
     start-sleep -s 4
@@ -1281,7 +1282,6 @@ function read-botxml($botfile){
       $global:autoreboot = "off"
     }
   }
-  #todo_get_reboot_value
   start-sleep-prog (Get-Random -Minimum 5 -Maximum 40) "Prepare Bot..."
   foreach ($account in $acc_name_array) {
     $st_acc_start = debug_log_start
@@ -1380,7 +1380,7 @@ function aut_reboot_emu{
         Start-Sleep-Prog 10 "Boot Drony"
       }
       $global:loop_start_time = (Get-Date)
-    }  
+    }
   }
 }
 
