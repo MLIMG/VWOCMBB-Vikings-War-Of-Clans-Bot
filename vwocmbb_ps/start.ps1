@@ -3529,15 +3529,41 @@ function remove-running($params){
 }
 
 function check-osvers{
-  [int]$currpsvers = (Get-Variable PSVersionTable -ValueOnly).PSVersion.Major
-  if($currpsvers -lt 4){
-    [version]$OSVersion = Get-CimInstance -Class Win32_OperatingSystem | Select-Object -ExpandProperty Version
+  [version]$OSVersion = Get-CimInstance -Class Win32_OperatingSystem | Select-Object -ExpandProperty Version
+  $ps_version = $PSVersionTable.PSVersion.Major
+  if($ps_version -lt 5){
+    write-host ""
+    write-host Checking os version...
+    start-sleep -m 700
+    write-host "OS Version: $OSVersion - OK"
+    write-host ""
+    write-host Checking PS version...
+    start-sleep -m 700
+    write-host "PS Version: $OSVersion - Fail"
+    write-host ""
+    start-sleep -m 1000
     If ($OSVersion -gt "10.0") {
       loadxmlsettings
     } ElseIf ($OSVersion -gt "6.3") {
-      loadxmlsettings
+      if ((gwmi win32_operatingsystem | select osarchitecture).osarchitecture -eq "64-bit"){
+        #64 bit logic here
+        write-host "Please update your servicepack!"
+        & 'C:\vwocmbb_ps\data\bin\Win8.1AndW2K12R2-KB3191564-x64\Win8.1AndW2K12R2-KB3191564-x64.msu'
+      } else {
+        #32 bit logic here
+        write-host "Please update your servicepack!"
+        & 'C:\vwocmbb_ps\data\bin\Win8.1-KB3191564-x86\Win8.1-KB3191564-x86.msu'
+      }
     } ElseIf ($OSVersion -gt "6.2") {
-      loadxmlsettings
+      if ((gwmi win32_operatingsystem | select osarchitecture).osarchitecture -eq "64-bit"){
+        #64 bit logic here
+        write-host "Please update your servicepack!"
+        & 'C:\vwocmbb_ps\data\bin\Win8.1AndW2K12R2-KB3191564-x64\Win8.1AndW2K12R2-KB3191564-x64.msu'
+      } else {
+        #32 bit logic here
+        write-host "Please update your servicepack!"
+        & 'C:\vwocmbb_ps\data\bin\Win8.1-KB3191564-x86\Win8.1-KB3191564-x86.msu'
+      }
     } ElseIf ($OSVersion -gt "6.1") {
       if ((gwmi win32_operatingsystem | select osarchitecture).osarchitecture -eq "64-bit"){
         #64 bit logic here
@@ -3549,27 +3575,60 @@ function check-osvers{
         & 'C:\vwocmbb_ps\data\bin\Win7-KB3191566-x86\Win7-KB3191566-x86.msu'
       }
     } ElseIf ($OSVersion -gt "6.0") {
+      cls
+      write-host ""
+      write-host Checking os version...
+      start-sleep -m 700
+      write-host "OS Version: $OSVersion - Fail"
+      write-host ""
+      write-host Checking PS version...
+      start-sleep -m 700
+      write-host "PS Version: $OSVersion - Fail"
+      write-host ""
       write-host 'Bot is incompatible with your os version!'
+      start-sleep -m 1000
     } Else {
+      cls
+      write-host ""
+      write-host Checking os version...
+      start-sleep -m 700
+      write-host "OS Version: $OSVersion - Fail"
+      write-host ""
+      write-host Checking PS version...
+      start-sleep -m 700
+      write-host "PS Version: $OSVersion - Fail"
+      write-host ""
       write-host 'Bot is incompatible with your os version!'
+      start-sleep -m 1000
       catch
     }
   } else {
+    write-host ""
+    write-host Checking os version...
+    start-sleep -m 700
+    write-host "OS Version: $OSVersion - OK"
+    write-host ""
+    write-host Checking PS version...
+    start-sleep -m 700
+    write-host "PS Version: $OSVersion - OK"
+    write-host ""
+    start-sleep -m 1000
     loadxmlsettings
   }
 }
-if($args[0] -eq "jobs"){
-  $botarr = @($args[1],$args[2],$args[3])
-  loadxmlsettings "jobs" $botarr
-} else {
-  if($args[0] -eq "quick"){
-    loadxmlsettings "quick"
+
+  if($args[0] -eq "jobs"){
+    $botarr = @($args[1],$args[2],$args[3])
+    loadxmlsettings "jobs" $botarr
   } else {
-    if($args[0] -eq "quickbot"){
-      $botarr = @($args[1],$args[2],$args[3],$args[4])
-      loadxmlsettings "quickbot" $botarr
+    if($args[0] -eq "quick"){
+      loadxmlsettings "quick"
     } else {
-      check-osvers
+      if($args[0] -eq "quickbot"){
+        $botarr = @($args[1],$args[2],$args[3],$args[4])
+        loadxmlsettings "quickbot" $botarr
+      } else {
+        check-osvers
+      }
     }
-  }
-}
+  }  
