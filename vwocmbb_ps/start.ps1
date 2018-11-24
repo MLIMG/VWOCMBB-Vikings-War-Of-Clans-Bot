@@ -6,6 +6,7 @@ Import-Module .\modules\VWOCMBB-updater\VWOCMBB-updater -WarningAction SilentlyC
 foreach ($extension in (Get-ChildItem (".\extension\") -Name -attributes D)){
     Import-Module .\extension\$extension\$extension -WarningAction SilentlyContinue
 }
+$debugvalue = 0
 $global:autoreboot = "on"
 $global:tutomode = ""
 $global:adbpath = ""
@@ -3688,7 +3689,15 @@ function check-osvers{
         $botarr = @($args[1],$args[2],$args[3],$args[4])
         loadxmlsettings "quickbot" $botarr
       } else {
+        if($debugvalue -eq 0){
         check-osvers
+        } else {
+          try{
+            check-osvers
+          } catch {
+            throw
+          }
+        }
       }
     }
   }
