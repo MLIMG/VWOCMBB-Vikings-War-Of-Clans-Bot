@@ -3310,11 +3310,30 @@ function if_color_in_range($retcolor,$colornode){
   foreach($color in $retcolor){
     [int]$color = $color
     [int]$node = $colornode[$colorcount]
-    $node_min = $node-5
-    $node_max = $node+5
+    $node_min = $node-10
+    $node_max = $node+10
     $compare = $color -In $node_min .. $node_max
     if($compare -eq $true){
+      if($colorcount -eq 0){
+        Write-host "R: $color is in range of: $node_min and $node_max"
+      }
+      if($colorcount -eq 1){
+        Write-host "G: $color is in range of: $node_min and $node_max"
+      }
+      if($colorcount -eq 2){
+        Write-host "B: $color is in range of: $node_min and $node_max"
+      }
       $parser++
+    } else {
+      if($colorcount -eq 0){
+        Write-host "R: $color is not in range of: $node_min and $node_max"
+      }
+      if($colorcount -eq 1){
+        Write-host "G: $color is not in range of: $node_min and $node_max"
+      }
+      if($colorcount -eq 2){
+        Write-host "B: $color is not in range of: $node_min and $node_max"
+      }
     }
     $colorcount++
     if($colorcount -ge 3){
