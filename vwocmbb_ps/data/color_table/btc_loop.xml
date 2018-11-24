@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Pixel>
+  <Color srgb="103,4,4" px="957" py="1245"/>
+  <Color srgb="129,6,14" px="426" py="981"/>
   <Color srgb="96,5,11" px="220" py="1420"/>
   <Color srgb="42,75,0" px="660" py="1366"/>
   <Color srgb="127,11,19" px="870" py="1390"/>
