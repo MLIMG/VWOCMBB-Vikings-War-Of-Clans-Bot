@@ -1190,8 +1190,7 @@ function read-botxml($botfile){
   if($global:emumode -eq "Nox"){
     $nox_vers = (get-item "$global:Nox\Nox.exe").VersionInfo.FileVersion
     $nox_vers = $nox_vers -replace "V.",""
-    $nox_vers = $nox_vers -replace ".",""
-    [int]$noxvers = $nox_vers
+    $noxvers = $nox_vers -replace "\.", ""
     if($noxvers -lt "6252"){
       cls
       Write-host ""
