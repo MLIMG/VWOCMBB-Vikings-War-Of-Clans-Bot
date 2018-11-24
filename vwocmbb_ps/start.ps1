@@ -1191,7 +1191,8 @@ function read-botxml($botfile){
     $nox_vers = (get-item "$global:Nox\Nox.exe").VersionInfo.FileVersion
     $nox_vers = $nox_vers -replace "V.",""
     $nox_vers = $nox_vers -replace ".",""
-    if($nox_vers -lt "6252"){
+    [int]$noxvers = $nox_vers
+    if($noxvers -lt "6252"){
       cls
       Write-host ""
       Write-host "Please change Nox to version V.6.2.5.2"
