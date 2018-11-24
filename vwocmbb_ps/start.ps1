@@ -3307,7 +3307,8 @@ function if_color_in_range($retcolor,$colornode){
   $colornode = $colornode.split(',')
   $parser = 0
   $colorcount = 0
-  foreach([int]$color in $retcolor){
+  foreach($color in $retcolor){
+    $[int]$color = $color
     [int]$node = $colornode[$colorcount]
     $node_min = $node-5
     $node_max = $node+5
