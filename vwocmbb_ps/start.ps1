@@ -3303,47 +3303,37 @@ function doOCR($cap,$mode,$obj,$func_name){
 }
 
 function if_color_in_range($retcolor,$colornode){
-  $retcolor = $retcolor.split(',')
-  $colornode = $colornode.split(',')
-  $parser = 0
-  $colorcount = 0
-  foreach($color in $retcolor){
-    [int]$color = $color
-    [int]$node = $colornode[$colorcount]
-    $node_min = $node-10
-    $node_max = $node+10
-    $compare = $color -In $node_min .. $node_max
-    if($compare -eq $true){
-      if($colorcount -eq 0){
-        Write-host "R: $color is in range of: $node_min and $node_max"
-      }
-      if($colorcount -eq 1){
-        Write-host "G: $color is in range of: $node_min and $node_max"
-      }
-      if($colorcount -eq 2){
-        Write-host "B: $color is in range of: $node_min and $node_max"
-      }
-      $parser++
-    } else {
-      if($colorcount -eq 0){
-        Write-host "R: $color is not in range of: $node_min and $node_max"
-      }
-      if($colorcount -eq 1){
-        Write-host "G: $color is not in range of: $node_min and $node_max"
-      }
-      if($colorcount -eq 2){
-        Write-host "B: $color is not in range of: $node_min and $node_max"
-      }
-    }
-    $colorcount++
-    if($colorcount -ge 3){
-      break
-    }
-  }
-  if($parser -eq 3){
-    return $true
-  } else {
+  if($retcolor.length -lt 3 -or $colornode.length -lt 3){
     return $false
+  } else {
+    try {
+      $retcolor = $retcolor.split(',')
+      $colornode = $colornode.split(',')
+      $parser = 0
+      $colorcount = 0
+      foreach($colors in $retcolor){
+            [int]$color = $colors
+            [int]$node = $colornode[$colorcount]
+            [int]$node_min = $node-10
+            [int]$node_max = $node+10
+            if($color -ge $node_min -and $color -le $node_max){
+              $parser++
+            }
+            $colorcount++
+            if($colorcount -ge 3){
+              break
+            }
+      }
+      if($parser -eq 3){
+        return $true
+      } else {
+        return $false
+      }
+    } catch {
+      Write-Host $_.Exception.Message
+      start-sleep -s 3
+      return $false
+    }
   }
 }
 
