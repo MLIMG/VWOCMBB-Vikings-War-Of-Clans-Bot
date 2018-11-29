@@ -63,7 +63,9 @@ function VWOCMBB-updater([array]$params){
       }
     }
   } catch {
+    cls
     write-host "Plarium fucking back... something went wrong!"
-    throw
+    Write-Host $_.Exception.Message
+    start-sleep -s 5
   }
 }

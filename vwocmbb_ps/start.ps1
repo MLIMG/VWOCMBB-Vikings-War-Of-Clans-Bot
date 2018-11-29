@@ -1896,7 +1896,7 @@ function getkvkcvcrelo([array]$params){
     }
 
     if($shmode -eq 1){
-      $shtext=with Stronghold
+      $shtext = "with Stronghold"
       [int]$shposx=98
       [int]$shposy=641
     }
@@ -1906,7 +1906,7 @@ function getkvkcvcrelo([array]$params){
     click-screen $shposx $shposy
     Start-Sleep -s 2
     click-screen 891 1331
-    click-screen 908 1673
+    click-screen 908 1373
     Start-Sleep -s 2
     $ai_val = read_ai_db "getkvkcvcrelo" "close"
       if($ai_val -ne 0){
@@ -3411,7 +3411,7 @@ function click-screen([int]$pos_x,[int]$pos_y,$press_type){
     start-sleep -m 3500
   }
   if($press_type -eq "tuto"){
-    $random_mss = Get-Random -Minimum 1200 -Maximum 3000
+    $random_mss = Get-Random -Minimum 1600 -Maximum 3000
     Start-Sleep -m $random_mss
   }
   if($global:ct -eq "ms"){
@@ -3705,7 +3705,10 @@ function check-osvers{
           try{
             check-osvers
           } catch {
-            throw
+            cls
+            write-host "Plarium fucking back... something went wrong!"
+            Write-Host $_.Exception.Message
+            start-sleep -s 5
           }
         }
       }
