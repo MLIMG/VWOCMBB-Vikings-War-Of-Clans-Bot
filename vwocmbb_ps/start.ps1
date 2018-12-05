@@ -1393,7 +1393,7 @@ function aut_reboot_emu{
 function restart-loop{
   $adbArgList = @(
     "-s $global:adbname",
-    "shell am force-stop ch.easy_develope.vwocmb.vikingswarofclansmultibox"
+    "shell am force-stop ch.easy_develope.vwocmb.vikingswarofclansmultiboxof"
   )
   run-prog $global:adbpath $adbArgList
   $adbArgList = @(
@@ -1443,7 +1443,7 @@ function acc($params){
   $accname = $params -replace " ", "_"
   $adbArgList = @(
     "-s $global:adbname",
-    "shell am force-stop ch.easy_develope.vwocmb.vikingswarofclansmultibox"
+    "shell am force-stop ch.easy_develope.vwocmb.vikingswarofclansmultiboxof"
   )
   run-prog $global:adbpath $adbArgList
   $adbArgList = @(
@@ -1455,7 +1455,7 @@ function acc($params){
   $adbArgList = @(
     "-s $global:adbname",
     "shell am start",
-    "-n ch.easy_develope.vwocmb.vikingswarofclansmultibox/ch.easy_develope.vwocmb.vikingswarofclansmultibox.MainActivity",
+    "-n ch.easy_develope.vwocmb.vikingswarofclansmultiboxof/ch.easy_develope.vwocmb.vikingswarofclansmultiboxof.MainActivity",
     '--es "accname" ' + $accname
   )
   run-prog $global:adbpath $adbArgList
@@ -1468,7 +1468,7 @@ function acc($params){
   } else {
     $adbArgList = @(
       "-s $global:adbname",
-      "shell am force-stop ch.easy_develope.vwocmb.vikingswarofclansmultibox"
+      "shell am force-stop ch.easy_develope.vwocmb.vikingswarofclansmultiboxof"
     )
     run-prog $global:adbpath $adbArgList
     if($global:tutomode -eq "on"){
