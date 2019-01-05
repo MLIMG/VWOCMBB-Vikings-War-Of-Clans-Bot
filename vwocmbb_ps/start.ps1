@@ -1,7 +1,12 @@
 Set-Location "C:\vwocmbb_ps"
-Import-Module .\modules\ps-menu-master\PS-Menu
-Import-Module .\modules\VWOCMBB-ValidateXmlFile -WarningAction SilentlyContinue
-Import-Module .\modules\VWOCMBB-updater\VWOCMBB-updater -WarningAction SilentlyContinue
+$ps_version = $PSVersionTable.PSVersion.Major
+if($ps_version -lt 5){
+  write-host "PS Version: $ps_version - Fail"
+} else {
+  Import-Module .\modules\ps-menu-master\PS-Menu
+  Import-Module .\modules\VWOCMBB-ValidateXmlFile -WarningAction SilentlyContinue
+  Import-Module .\modules\VWOCMBB-updater\VWOCMBB-updater -WarningAction SilentlyContinue
+}
 
 foreach ($extension in (Get-ChildItem (".\extension\") -Name -attributes D)){
     Import-Module .\extension\$extension\$extension -WarningAction SilentlyContinue
@@ -390,6 +395,37 @@ function show-settings-menu{
   }
 }
 
+function list_sota{
+  cls
+  $json_url = "https://app.easy-develope.ch/_/items/custom_bot_scripts?access_token=g6fg5fs4gh456g4fjg4jhgn5gh4j5u4t8rg54sd21v54gbfh47r876ets4gfd1v3cx54gbf8hrt6s5df6897gfds3v313xc54h8f67rsddfg"
+  $jsoncon = Invoke-WebRequest $json_url | convertfrom-json
+  $items = $jsoncon.data
+  $menuarr = New-Object System.Collections.ArrayList
+  foreach ($item in $items){
+    $menuarr.add($item.script_name) | out-null
+  }
+  $menuarr.add("go back") | out-null
+  write-host ""
+  $selected_sota = menu $menuarr
+  if([string]::IsNullOrEmpty($mainmenu)){
+    show-main-menu
+  } else {
+    if($selected_sota -eq "go back"){
+      show-main-menu
+    } else {
+      $json_url = "https://app.easy-develope.ch/_/items/custom_bot_scripts?access_token=g6fg5fs4gh456g4fjg4jhgn5gh4j5u4t8rg54sd21v54gbfh47r876ets4gfd1v3cx54gbf8hrt6s5df6897gfds3v313xc54h8f67rsddfg&filter[script_name][eq]=$selected_sota"
+      $jsoncon = Invoke-WebRequest $json_url | convertfrom-json
+      $scriptBlock = [Scriptblock]::Create($jsoncon.data.scriptblock)
+      cls
+      write-host ""
+      & $scriptBlock
+      write-host "Script: $selected_sota executed succesfully!"
+      start-sleep -s 4
+      show-main-menu
+    }
+  }
+}
+
 <#
 show main menu
 #>
@@ -399,12 +435,15 @@ function show-main-menu{
   Write-host "Vikings War Of Clans MB Bot"
   Write-host ""
   if($global:usb_mode -eq "On"){
-    $mainmenu = menu @("Start Bot","Release USB Device","Quickstart","Setup ip ban protection", "Settings", "Check for Updates", "Help", "Exit")
+    $mainmenu = menu @("Start Bot","Release USB Device","Quickstart","Setup ip ban protection", "Settings", "Check for Updates", "SOTA", "Help", "Exit")
   } else {
-    $mainmenu = menu @("Start Bot", "Start Emulator", "Quickstart","Setup ip ban protection", "Settings", "Check for Updates", "Help", "Exit")
+    $mainmenu = menu @("Start Bot", "Start Emulator", "Quickstart","Setup ip ban protection", "Settings", "Check for Updates", "SOTA", "Help", "Exit")
   }
   if($mainmenu -eq "Start Bot"){
     start-bot
+  }
+  if($mainmenu -eq "SOTA"){
+    list_sota
   }
   if($mainmenu -eq "Settings"){
     show-settings-menu
@@ -1088,16 +1127,18 @@ function check_drony_patch(){
 
   }
   $path = "C:\vwocmbb_ps\data\bin\eum_confs\$emuname\drony_patch_version.json"
-  $ab_path = "C:\vwocmbb_ps\data\bin\eum_confs\drony.ab"
-  $apk_path = "C:\vwocmbb_ps\data\bin\eum_confs\drony_patch.apk"
+  $ab_path = "C:\vwocmbb_ps\data\bin\eum_confs\$emuname\drony.ab"
+  $apk_path = "C:\vwocmbb_ps\data\bin\eum_confs\$emuname\drony_patch.apk"
   $ab_url = "https://easy-develope.ch/ps_bot_update/drony.ab"
   $apk_url = "https://easy-develope.ch/ps_bot_update/drony_patch.apk"
-  $json_url = "https://api.easy-develope.ch/mbb/get_drony_version"
+  $json_url = "https://app.easy-develope.ch/_/items/drony_updater?access_token=g6fg5fs4gh456g4fjg4jhgn5gh4j5u4t8rg54sd21v54gbfh47r876ets4gfd1v3cx54gbf8hrt6s5df6897gfds3v313xc54h8f67rsddfg"
+  $jsoncon = Invoke-WebRequest $json_url | convertfrom-json
+
   if (Test-Path $path) {
     cls
     $curren_version = Get-Content -Raw -Path $path | ConvertFrom-Json -errorAction SilentlyContinue
-    $online_version = Invoke-WebRequest $json_url | convertfrom-json -errorAction SilentlyContinue
-    if($curren_version.version -ne $online_version.version){
+    $online_version = $jsoncon.data.version
+    if($curren_version.data.version -ne $online_version){
       Invoke-WebRequest -Uri $ab_url -OutFile $ab_path
       Invoke-WebRequest -Uri $apk_url -OutFile $apk_path
       cls
@@ -1108,11 +1149,11 @@ function check_drony_patch(){
       run-prog-clk $global:adbpath $adbargs
       bot_notify "Install Drony_Ad_Free"
       start-sleep -s 4
-      $adbargs = @("-s $global:adbname","install -r C:\vwocmbb_ps\data\bin\eum_confs\drony_patch.apk")
+      $adbargs = @("-s $global:adbname","install -r C:\vwocmbb_ps\data\bin\eum_confs\$emuname\drony_patch.apk")
       run-prog $global:adbpath $adbargs
       start-sleep -s 4
       bot_notify "Configure Drony"
-      $adbargs = @("-s $global:adbname","restore C:\vwocmbb_ps\data\bin\eum_confs\drony.ab")
+      $adbargs = @("-s $global:adbname","restore C:\vwocmbb_ps\data\bin\eum_confs\$emuname\drony.ab")
       run-prog-clk $global:adbpath $adbargs
       start-sleep -s 4
       click-screen 800 1880
@@ -1151,11 +1192,11 @@ function check_drony_patch(){
     run-prog-clk $global:adbpath $adbargs
     bot_notify "Install Drony_Ad_Free"
     start-sleep -s 4
-    $adbargs = @("-s $global:adbname","install -r C:\vwocmbb_ps\data\bin\eum_confs\drony_patch.apk")
+    $adbargs = @("-s $global:adbname","install -r C:\vwocmbb_ps\data\bin\eum_confs\$emuname\drony_patch.apk")
     run-prog $global:adbpath $adbargs
     start-sleep -s 4
     bot_notify "Configure Drony"
-    $adbargs = @("-s $global:adbname","restore C:\vwocmbb_ps\data\bin\eum_confs\drony.ab")
+    $adbargs = @("-s $global:adbname","restore C:\vwocmbb_ps\data\bin\eum_confs\$emuname\drony.ab")
     run-prog-clk $global:adbpath $adbargs
     start-sleep -s 4
     click-screen 800 1880
@@ -1385,6 +1426,30 @@ function aut_reboot_emu{
       $global:loop_start_time = (Get-Date)
     }
   }
+}
+
+#todo hyper_booster
+function hyper_booster($params){
+  click-screen 990 500
+  click-screen 324 1812
+  foreach($type in $params){
+    if($type -eq "iron"){
+      click-screen 127 343
+      click-screen 900 1680
+      click-screen 900 1430
+    }
+    if($type -eq "wood"){
+      click-screen 127 343
+      click-screen 900 1680
+      click-screen 900 1430
+    }
+    if($type -eq "iron"){
+      click-screen 127 343
+      click-screen 900 1680
+      click-screen 900 1430
+    }
+  }
+
 }
 
 <#
@@ -2412,7 +2477,7 @@ function rss_to_sh_ext([array]$params){
   bot_notify "Send RSS to SH"
   click-screen 818 1818
   Start-Sleep -m 350
-  click-screen 465 900
+  click-screen 524 992
   Start-Sleep-Prog 13 "Wait for SH"
   click-screen 470 45
   Start-Sleep -m 350

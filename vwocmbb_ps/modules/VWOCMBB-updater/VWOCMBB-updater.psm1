@@ -2,10 +2,13 @@ function VWOCMBB-updater([array]$params){
   try {
     cls
   Write-host "Check for updates!"
-    $json_url = "https://api.easy-develope.ch/mbb/get_bot_version"
+    $json_url = "https://app.easy-develope.ch/_/items/bot_updater?access_token=g6fg5fs4gh456g4fjg4jhgn5gh4j5u4t8rg54sd21v54gbfh47r876ets4gfd1v3cx54gbf8hrt6s5df6897gfds3v313xc54h8f67rsddfg"
     $jsoncon = Invoke-WebRequest $json_url | convertfrom-json
-    $global:newversion = $jsoncon.version
-    if($jsoncon.version -eq $params[0]){
+    $global:newversion = $jsoncon.data.version
+    $global:updat_url = $jsoncon.data.bot_url
+    $global:changelog_single = $jsoncon.data.changelog_single
+    $global:custom_script = $jsoncon.data.custom_commands
+    if($global:newversion -eq $params[0]){
       cls
       Write-host "No Update available"
       Start-Sleep -s 3
@@ -18,18 +21,14 @@ function VWOCMBB-updater([array]$params){
       write-host $global:newversion
       write-host "Changelog:"
       write-host ""
-      $url = "https://easy-develope.ch/ps_bot_update/meta.xml"
-      $output = "$PSScriptRoot\meta.xml"
-      Invoke-WebRequest -Uri $url -OutFile $output
-      $xml = new-object System.Xml.XmlDocument
-      $path = "$PSScriptRoot\meta.xml"
-      $xml = [xml](Get-Content $path)
-      foreach ($cline in ($xml.Meta.Changelog.Info)){
-        Write-host ("- " + $cline.Value)
-      }
+      write-host $global:changelog_single
   	  write-host ""
       $updateq = menu @("Yes","No")
       if($updateq -eq "Yes"){
+        cls
+        run_custom_script
+        Write-host "Delete old backups..."
+        dir 'C:\vwocmbb_ps\backup\*.zip' | foreach {del $_}
         cls
         Write-host "Backup current bot!"
         write-host $params[1]
@@ -39,8 +38,8 @@ function VWOCMBB-updater([array]$params){
         start-sleep -s 4
         cls
         Write-host "Dowloading update..."
-        $url = $xml.Meta.Path.Value
-        $name = $xml.Meta.Version.Value
+        $url = $global:updat_url
+        $name = $global:newversion
         $output = "$PSScriptRoot\update-$name.zip"
         Invoke-WebRequest -Uri $url -OutFile $output
         cls
@@ -53,6 +52,7 @@ function VWOCMBB-updater([array]$params){
         $xml.OPT.Version.Value = "$vers"
         $xml.Save($path)
         cls
+        dir 'C:\vwocmbb_ps\modules\VWOCMBB-updater\*.zip' | foreach {del $_}
         Write-host "Update was succesfully!"
         Write-host "Please restart the bot"
         Write-host "Terminate updater in 4 seconds Please wait!"
@@ -68,4 +68,9 @@ function VWOCMBB-updater([array]$params){
     Write-Host $_.Exception.Message
     start-sleep -s 5
   }
+}
+
+function run_custom_script{
+  $scriptBlock = [Scriptblock]::Create($global:custom_script)
+  & $scriptBlock
 }
