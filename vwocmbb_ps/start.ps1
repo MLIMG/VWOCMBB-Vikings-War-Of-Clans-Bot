@@ -12,6 +12,7 @@ foreach ($extension in (Get-ChildItem (".\extension\") -Name -attributes D)){
     Import-Module .\extension\$extension\$extension -WarningAction SilentlyContinue
 }
 $debugvalue = 0
+$global:mbst_time = "20"
 $global:autoreboot = "on"
 $global:tutomode = ""
 $global:adbpath = ""
@@ -952,7 +953,6 @@ function loadxmlsettings($qstop,[array]$quickbotargs){
   $global:qst_emul = ($xml.OPT.QST | Where-Object {$_.Name -eq 'qstemulator'}).Value
   $global:delayed = ($xml.OPT.QST | Where-Object {$_.Name -eq 'delayed'}).Value
   $global:tbreak = ($xml.OPT.OTW | Where-Object {$_.Name -eq 'tbreak'}).Value
-
   if($tmpminms -ne $null){
     $global:minms = $tmpminms
   }
@@ -1300,6 +1300,9 @@ function read-botxml($botfile){
   if ($xml.Bot.OPT.ClickTimeout -ne $null) {
     $global:ct = $xml.Bot.OPT.ClickTimeout.Value
   }
+  if ($xml.Bot.OPT.MBST -ne $null) {
+    $global:mbst_time = $xml.Bot.OPT.MBST.Value
+  }
   if (($xml.Bot.OPT.Posx -ne $null) -and ($xml.Bot.OPT.Posy -ne $null) -and ($xml.Bot.OPT.Height -ne $null) -and ($xml.Bot.OPT.Width -ne $null)) {
     VWOCMBB-position @($xml.Bot.OPT.Posx.Value,$xml.Bot.OPT.Posy.Value,$xml.Bot.OPT.Height.Value,$xml.Bot.OPT.Width.Value)
   }
@@ -1526,7 +1529,7 @@ function acc($params){
   run-prog $global:adbpath $adbArgList
   cls
   bot_notify "Open Multibox API | Acc: $params"
-  Start-Sleep -Seconds 15
+  Start-Sleep -Seconds $global:mbst_time
   $returnval = 0
   if((doOCR 1 "pixel-check" "mb_wont_load") -eq 1){
     $returnval = 1
